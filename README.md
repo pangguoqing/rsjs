@@ -3,6 +3,11 @@
 
 现在已经有很多很好用的模块加载器，如seajs，requirejs等。但是否您仅满足于此，加入进来，完善rsjs，它会成为大家另一个选择。
 
+##配置
+如果请求的是跨域资源(比如从cdn服务器请求资源)，那么需要在静态服务器上进行一定的配置。详情，请参见wiki。
+在http header中添加 `Access-Control-Allow-Origin:*`
+在静态域名根目录下添加 `crossdomain.xml`
+
 ##大概了解
 1.更加贴合nodejs中模块的编写方式，无需包裹。
 
