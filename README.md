@@ -26,7 +26,7 @@
 
 2.ie浏览器调试开发支持不够
 
-欢迎踊跃参与讨论，完善rsjs，｀wiki｀
+欢迎踊跃参与讨论，完善rsjs，参见`wiki`
 
 ##API参考
 ###rsjs.config
