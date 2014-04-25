@@ -1,4 +1,4 @@
-/*! rsjs - v0.1.0 - 2014-04-25 */
+/*! rsjs - v0.1.0 - 2014-04-26 */
 (function(global, undefined) {
 // Avoid conflicting when `rs.js` is loaded multiple times
 if (global.rsjs) {
@@ -407,6 +407,12 @@ var indexOf = [].indexOf || function(elem) {
 	}
 	return -1;
 };
+function isEmptyObject(obj){
+    for(var name in obj){
+        return false;
+    }
+    return true;
+}
 var head = document.getElementsByTagName("head")[0] || document.documentElement;
 var baseElement = head.getElementsByTagName("base")[0];
 function define(id, deps, factory) {
@@ -625,7 +631,7 @@ Module.prototype.execute = function() {
 		if (shimData && shimData.exports) {
 			code = code + ";module.exports=" + shimData.exports;
 		}
-		this.exports = {};
+		var exports = this.exports = {};
 		code = 'rsjs._modules["' + this.uri
 				+ '"]._return = (function(require,exports,module,define){\n\t'
 				+ code + '})(rsjs._modules["' + this.uri
@@ -637,6 +643,7 @@ Module.prototype.execute = function() {
 		baseElement ? head.insertBefore(node, baseElement) : head
 				.appendChild(node);
 		currentUri = "";
+		this.exports = (this.exports === exports && isEmptyObject)?null:this.exports;
 		this.exports = (this._return === undefined) ? this.exports
 				: this._return;
 	} else if (this.extname === "json") {

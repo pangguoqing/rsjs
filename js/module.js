@@ -14,6 +14,12 @@ var indexOf = [].indexOf || function(elem) {
 	}
 	return -1;
 };
+function isEmptyObject(obj){
+    for(var name in obj){
+        return false;
+    }
+    return true;
+}
 var head = document.getElementsByTagName("head")[0] || document.documentElement;
 var baseElement = head.getElementsByTagName("base")[0];
 function define(id, deps, factory) {
@@ -217,33 +223,29 @@ Module.prototype.execute = function() {
 	this.status = Module.status.EXECUTING;
 	if (this.extname === "js") {
 		var factory = factorys[this.uri];
+		var exports = this.exports = {};
 		if (factory) {
 			currentUri = this.uri;
-			this.exports = {};
 			this._return = factory(this.require, this.exports, this, define);
-			currentUri = "";
-			this.exports = (this._return === undefined) ? this.exports
-					: this._return;
-			return;
+		}else{
+			var node = document.createElement("script");
+			var shimData = data._shim[this.uri];
+			if (shimData && shimData.exports) {
+				code = code + ";module.exports=" + shimData.exports;
+			}
+			code = 'rsjs._modules["' + this.uri
+					+ '"]._return = (function(require,exports,module,define){\n\t'
+					+ code + '})(rsjs._modules["' + this.uri
+					+ '"].require,rsjs._modules["' + this.uri
+					+ '"].exports,rsjs._modules["' + this.uri
+					+ '"],define)\n//# sourceURL=' + this.uri;
+			node.text = code;
+			currentUri = this.uri;
+			baseElement ? head.insertBefore(node, baseElement) : head
+					.appendChild(node);
 		}
-
-		var node = document.createElement("script");
-		var shimData = data._shim[this.uri];
-		if (shimData && shimData.exports) {
-			code = code + ";module.exports=" + shimData.exports;
-		}
-		this.exports = {};
-		code = 'rsjs._modules["' + this.uri
-				+ '"]._return = (function(require,exports,module,define){\n\t'
-				+ code + '})(rsjs._modules["' + this.uri
-				+ '"].require,rsjs._modules["' + this.uri
-				+ '"].exports,rsjs._modules["' + this.uri
-				+ '"],define)\n//# sourceURL=' + this.uri;
-		node.text = code;
-		currentUri = this.uri;
-		baseElement ? head.insertBefore(node, baseElement) : head
-				.appendChild(node);
 		currentUri = "";
+		this.exports = (this.exports === exports && isEmptyObject(exports))?null:this.exports;
 		this.exports = (this._return === undefined) ? this.exports
 				: this._return;
 	} else if (this.extname === "json") {
