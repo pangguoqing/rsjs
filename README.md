@@ -8,12 +8,14 @@
 在http header中添加 `Access-Control-Allow-Origin:*`
 在静态域名根目录下添加 `crossdomain.xml`
 
+注:这个配置并不是必须的，通过提供的打包工具生成的目标文件，可以直接通过script标签使用。
+
 ##大概了解
 1.更加贴合nodejs中模块的编写方式，无需包裹。
 
 2.更多模块形态，更加直观 *.js,*.css,*.json,*.text 等。
 
-3.更简单的api。
+3.和seajs，requirejs相比，api更简单，去除了define，调整了入口函数。
 
 4.单一文件输出（目前支持*.js,*.css,*.json,*.text,以及其他文本格式的文件压缩合并成一个目标文件）
 
