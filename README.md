@@ -8,7 +8,7 @@
 在http header中添加 `Access-Control-Allow-Origin:*`
 在静态域名根目录下添加 `crossdomain.xml`
 
-注:这个配置并不是必须的，通过提供的打包工具生成的目标文件，可以直接通过script标签使用。
+注:这个配置并不是必须的，通过提供的打包工具生成的目标文件，可以直接通过script标签引用。
 
 ##大概了解
 1.更加贴合nodejs中模块的编写方式，无需包裹。
