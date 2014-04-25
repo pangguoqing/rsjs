@@ -1,0 +1,16 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+#test{
+	background: url("img/test.jpg") no-repeat;	
+	background-size:40px 40px;
+}
+#test>a{
+	color: #00B7FF;
+}
+.test{
+	width:40px;
+	height:40px;
+	overflow:hidden;
+}
