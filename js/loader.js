@@ -12,14 +12,47 @@ var loader = function(options) {
 		rsjs._flashLoaderOnErrorCallbacks[url] = onerror;
 		return;
 	}
-	var _xhr = loader.createCORSRequest(url);
-	_xhr.onerror = onerror;
-	_xhr.onload = function() {
-		onsuccess(_xhr.responseText);
-	};
-	_xhr.send();
+	var xhr = loader.needCORS?loader.createCORSRequest(url):loader.createRequest(url);
+	if(loader.needCORS){
+		xhr.onerror = onerror;
+		xhr.onload = function() {
+			onsuccess(xhr.responseText);
+		};	
+	}else{
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState === 4){
+				if(xhr.status === 200){
+					onsuccess(xhr.responseText);
+				}else{
+					onerror(xhr.statusText);
+				}
+			}
+		};
+	}
+	xhr.send();
 };
+loader.needCORS = false;
 loader.preferFlash = false;
+loader.createRequest = function(url){
+	var xhr;
+	if(window.XMLHttpRequest === undefined){
+		try{
+			xhr = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+		}
+		catch(e1){
+			try {
+				xhr = new ActiveXObject("Msxml2.XMLHTTP.3.0");	
+			}
+			catch(e2){
+				throw new Error("XMLHttpRequest is not supported");
+			}
+		}
+	}else{
+		xhr = new XMLHttpRequest();
+	}
+	xhr.open("get", url);
+	return xhr;
+};
 loader.createCORSRequest = function(url) {
 	var xhr = new XMLHttpRequest();
 	if ("withCredentials" in xhr) {
@@ -67,7 +100,7 @@ loader.prepareFlashLoader = function() {
 		});
 	}
 };
-loader.support = (function() {
+loader.supportCORS = (function() {
 	return (typeof XDomainRequest != "undefined")
 			|| (typeof XMLHttpRequest != "undefined")
 			&& ("withCredentials" in new XMLHttpRequest());

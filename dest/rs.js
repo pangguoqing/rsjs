@@ -1,4 +1,4 @@
-/*! rsjs - v0.1.0 - 2014-04-26 */
+/*! rsjs - v0.1.0 - 2014-04-28 */
 (function(global, undefined) {
 // Avoid conflicting when `rs.js` is loaded multiple times
 if (global.rsjs) {
@@ -616,34 +616,29 @@ Module.prototype.execute = function() {
 	this.status = Module.status.EXECUTING;
 	if (this.extname === "js") {
 		var factory = factorys[this.uri];
+		var exports = this.exports = {};
 		if (factory) {
 			currentUri = this.uri;
-			this.exports = {};
 			this._return = factory(this.require, this.exports, this, define);
-			currentUri = "";
-			this.exports = (this._return === undefined) ? this.exports
-					: this._return;
-			return;
+		}else{
+			var node = document.createElement("script");
+			var shimData = data._shim[this.uri];
+			if (shimData && shimData.exports) {
+				code = code + ";module.exports=" + shimData.exports;
+			}
+			code = 'rsjs._modules["' + this.uri
+					+ '"]._return = (function(require,exports,module,define){\n\t'
+					+ code + '})(rsjs._modules["' + this.uri
+					+ '"].require,rsjs._modules["' + this.uri
+					+ '"].exports,rsjs._modules["' + this.uri
+					+ '"],define)\n//# sourceURL=' + this.uri;
+			node.text = code;
+			currentUri = this.uri;
+			baseElement ? head.insertBefore(node, baseElement) : head
+					.appendChild(node);
 		}
-
-		var node = document.createElement("script");
-		var shimData = data._shim[this.uri];
-		if (shimData && shimData.exports) {
-			code = code + ";module.exports=" + shimData.exports;
-		}
-		var exports = this.exports = {};
-		code = 'rsjs._modules["' + this.uri
-				+ '"]._return = (function(require,exports,module,define){\n\t'
-				+ code + '})(rsjs._modules["' + this.uri
-				+ '"].require,rsjs._modules["' + this.uri
-				+ '"].exports,rsjs._modules["' + this.uri
-				+ '"],define)\n//# sourceURL=' + this.uri;
-		node.text = code;
-		currentUri = this.uri;
-		baseElement ? head.insertBefore(node, baseElement) : head
-				.appendChild(node);
 		currentUri = "";
-		this.exports = (this.exports === exports && isEmptyObject)?null:this.exports;
+		this.exports = (this.exports === exports && isEmptyObject(exports))?null:this.exports;
 		this.exports = (this._return === undefined) ? this.exports
 				: this._return;
 	} else if (this.extname === "json") {
@@ -789,14 +784,47 @@ var loader = function(options) {
 		rsjs._flashLoaderOnErrorCallbacks[url] = onerror;
 		return;
 	}
-	var _xhr = loader.createCORSRequest(url);
-	_xhr.onerror = onerror;
-	_xhr.onload = function() {
-		onsuccess(_xhr.responseText);
-	};
-	_xhr.send();
+	var xhr = loader.needCORS?loader.createCORSRequest(url):loader.createRequest(url);
+	if(loader.needCORS){
+		xhr.onerror = onerror;
+		xhr.onload = function() {
+			onsuccess(xhr.responseText);
+		};	
+	}else{
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState === 4){
+				if(xhr.status === 200){
+					onsuccess(xhr.responseText);
+				}else{
+					onerror(xhr.statusText);
+				}
+			}
+		};
+	}
+	xhr.send();
 };
+loader.needCORS = false;
 loader.preferFlash = false;
+loader.createRequest = function(url){
+	var xhr;
+	if(window.XMLHttpRequest === undefined){
+		try{
+			xhr = new ActiveXObject("Msxml2.XMLHTTP.6.0");
+		}
+		catch(e1){
+			try {
+				xhr = new ActiveXObject("Msxml2.XMLHTTP.3.0");	
+			}
+			catch(e2){
+				throw new Error("XMLHttpRequest is not supported");
+			}
+		}
+	}else{
+		xhr = new XMLHttpRequest();
+	}
+	xhr.open("get", url);
+	return xhr;
+};
 loader.createCORSRequest = function(url) {
 	var xhr = new XMLHttpRequest();
 	if ("withCredentials" in xhr) {
@@ -844,7 +872,7 @@ loader.prepareFlashLoader = function() {
 		});
 	}
 };
-loader.support = (function() {
+loader.supportCORS = (function() {
 	return (typeof XDomainRequest != "undefined")
 			|| (typeof XMLHttpRequest != "undefined")
 			&& ("withCredentials" in new XMLHttpRequest());
@@ -928,7 +956,10 @@ rsjs.config = function(configData) {
 		var uri = id2Uri(id);
 		data._shim[uri] = data.shim[id];
 	}
-	if (!loader.support || data.preferFlash) {
+	if (data.base.indexOf(location.host) === -1){
+		loader.needCORS = true;
+	}
+	if ((loader.needCORS && !loader.supportCORS) || data.preferFlash) {
 		loader.preferFlash = true;
 	}
 	if (loader.preferFlash) {
