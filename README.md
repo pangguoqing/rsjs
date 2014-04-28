@@ -1,5 +1,8 @@
 前端模块加载器
 ===
+##示例
+<https://github.com/pangguoqing/rs-examples/tree/master>
+
 ##原理
 rsjs的实现方式有别于现有的其它模块加载器，如`seajs`,`requirejs`。通过xhr（如果不支持xhr，就通过flash）来加载文件，因而获得对文件内容更好的控制，免除了用户在编写模块时必须包裹define的烦恼，而交给加载器来统一完成。详情，请参见`wiki`。
 
