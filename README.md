@@ -4,7 +4,7 @@
 <https://github.com/pangguoqing/rs-examples/tree/master>
 
 ##原理
-rsjs的实现方式有别于现有的其它模块加载器，如`seajs`,`requirejs`。通过xhr（如果不支持xhr，就通过flash）来加载文件，因而获得对文件内容更好的控制，免除了用户在编写模块时必须包裹define的烦恼，而交给加载器来统一完成。详情，请参见`wiki`。
+<https://github.com/pangguoqing/rsjs/wiki/rsjs%E5%AE%9E%E7%8E%B0%E5%8F%8A%E5%8E%9F%E7%90%86>
 
 ##配置
 如果请求的是跨域资源(比如从cdn服务器请求资源)，那么需要在静态服务器上进行一定的配置。详情，请参见`wiki`。
@@ -14,13 +14,13 @@ rsjs的实现方式有别于现有的其它模块加载器，如`seajs`,`require
 注:这个配置并不是必须的，打包工具生成的目标文件，可以直接通过script标签引用。
 
 ##大概了解
-1.更加贴合nodejs中模块的编写方式，无需包裹。
+1.更加贴合nodejs中模块的编写方式，无需`define`包裹。
 
-2.更多模块形态，更加直观 *.js,*.css,*.json,*.text 等。
+2.任何后缀的文本文件都可以被认为是一个模块。可以是.js,.json,.css,.text等，如果没有后缀，默认为.js。
 
-3.和seajs，requirejs相比，api更简单，去除了define，调整了入口函数。
+3.api更简单，去除了define，调整了入口函数。
 
-4.单一文件输出（目前支持*.js,*.css,*.json,*.text,以及其他文本格式的文件压缩合并成一个目标文件）
+4.所有模块都可以被打包在一个文件里面。（官方提供了专门的grunt脚本）
 
 5.兼容seajs定义的模块（并不推荐在rsjs里使用seajs定义的模块，考虑到seajs用户众多，方便大家调试）。
 
