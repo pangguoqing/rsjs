@@ -4,7 +4,7 @@
 <https://github.com/pangguoqing/rs-examples/tree/master>
 
 ##原理
-<https://github.com/pangguoqing/rsjs/wiki/rsjs%E5%AE%9E%E7%8E%B0%E5%8F%8A%E5%8E%9F%E7%90%86>
+参看<https://github.com/pangguoqing/rsjs/wiki>
 
 ##配置
 如果请求的是跨域资源(比如从cdn服务器请求资源)，那么需要在静态服务器上进行一定的配置。详情，请参见`wiki`。
