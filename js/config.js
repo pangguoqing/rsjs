@@ -75,13 +75,10 @@ rsjs.config = function(configData) {
 		var uri = id2Uri(id);
 		data._shim[uri] = data.shim[id];
 	}
-	if (data.base.indexOf(location.host) === -1){
-		loader.needCORS = true;
-	}
-	if ((loader.needCORS && !loader.supportCORS) || data.preferFlash) {
+	if (data.preferFlash) {
 		loader.preferFlash = true;
 	}
-	if (loader.preferFlash) {
+	if (loader.preferFlash || !loader.supportCORS) {
 		loader.prepareFlashLoader();
 	} else {
 		rsjs._ready = true;

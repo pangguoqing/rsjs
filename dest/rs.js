@@ -1,4 +1,4 @@
-/*! rsjs - v0.1.0 - 2014-04-28 */
+/*! rsjs - v0.1.0 - 2014-04-29 */
 (function(global, undefined) {
 // Avoid conflicting when `rs.js` is loaded multiple times
 if (global.rsjs) {
@@ -778,14 +778,16 @@ var loader = function(options) {
 		return;
 	}
 	var url = options.url;
-	if (loader.preferFlash) {
+	var needCORS = options.url.indexOf(location.host) === -1;
+	if ((needCORS && !loader.supportCORS) || loader.preferFlash) {
 		rsjs._flashLoader.load(url);
 		rsjs._flashLoaderOnSuccessCallbacks[url] = onsuccess;
 		rsjs._flashLoaderOnErrorCallbacks[url] = onerror;
 		return;
 	}
-	var xhr = loader.needCORS?loader.createCORSRequest(url):loader.createRequest(url);
-	if(loader.needCORS){
+	
+	var xhr = needCORS?loader.createCORSRequest(url):loader.createRequest(url);
+	if (needCORS){
 		xhr.onerror = onerror;
 		xhr.onload = function() {
 			onsuccess(xhr.responseText);
@@ -803,7 +805,6 @@ var loader = function(options) {
 	}
 	xhr.send();
 };
-loader.needCORS = false;
 loader.preferFlash = false;
 loader.createRequest = function(url){
 	var xhr;
@@ -956,13 +957,10 @@ rsjs.config = function(configData) {
 		var uri = id2Uri(id);
 		data._shim[uri] = data.shim[id];
 	}
-	if (data.base.indexOf(location.host) === -1){
-		loader.needCORS = true;
-	}
-	if ((loader.needCORS && !loader.supportCORS) || data.preferFlash) {
+	if (data.preferFlash) {
 		loader.preferFlash = true;
 	}
-	if (loader.preferFlash) {
+	if (loader.preferFlash || !loader.supportCORS) {
 		loader.prepareFlashLoader();
 	} else {
 		rsjs._ready = true;

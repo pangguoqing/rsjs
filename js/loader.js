@@ -6,14 +6,16 @@ var loader = function(options) {
 		return;
 	}
 	var url = options.url;
-	if (loader.preferFlash) {
+	var needCORS = options.url.indexOf(location.host) === -1;
+	if ((needCORS && !loader.supportCORS) || loader.preferFlash) {
 		rsjs._flashLoader.load(url);
 		rsjs._flashLoaderOnSuccessCallbacks[url] = onsuccess;
 		rsjs._flashLoaderOnErrorCallbacks[url] = onerror;
 		return;
 	}
-	var xhr = loader.needCORS?loader.createCORSRequest(url):loader.createRequest(url);
-	if(loader.needCORS){
+	
+	var xhr = needCORS?loader.createCORSRequest(url):loader.createRequest(url);
+	if (needCORS){
 		xhr.onerror = onerror;
 		xhr.onload = function() {
 			onsuccess(xhr.responseText);
@@ -31,7 +33,6 @@ var loader = function(options) {
 	}
 	xhr.send();
 };
-loader.needCORS = false;
 loader.preferFlash = false;
 loader.createRequest = function(url){
 	var xhr;
