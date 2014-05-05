@@ -112,7 +112,7 @@ function Module(uri) {
 	this.childUris = [];
 	this.parentUris = [];
 	this.exports = null;
-	this.status = 0;
+	this.status = Module.status.DEFINE;
 	this.asyncCallbacks = [];
 	this.extname = getExtname(uri) || "js";
 	this.defines = [];
@@ -121,13 +121,14 @@ function Module(uri) {
 	this.childReadyNum = 0;
 }
 Module.status = {
+	DEFINE: 0,
 	FETCHING : 1,
 	FETCHING_CHINDREN : 2,
 	EXECUTING : 3,
 	READY : 4
 };
 Module.prototype.fetch = function() {
-	if (this.status !== 0) {
+	if (this.status !== Module.status.DEFINE) {
 		return;
 	}
 	var self = this;
@@ -319,7 +320,7 @@ Module.prototype.require._asyncArray = function(paths, callback, parent) {
 	}
 };
 Module.prototype.isReady = function() {
-	return this.status == Module.status.READY;
+	return this.status === Module.status.READY;
 };
 Module.prototype.executable = function() {
 	if (this.status === Module.status.READY) {
