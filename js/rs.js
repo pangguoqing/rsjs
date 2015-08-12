@@ -1,6 +1,6 @@
 rsjs.noop = function() {
 };
-rsjs._modules = modules;
+rsjs._modules = modules; 
 rsjs._ready = false;
 rsjs._flashLoader = null;
 rsjs._flashLoaderOnReadyCallback = rsjs.noop;
